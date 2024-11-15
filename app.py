@@ -198,8 +198,9 @@ app.layout = html.Div([
      Input('x-y-z', "value")])
 
 def update_chart(selected_subject, selected_exercise, selected_unit, type_df, selected_subject2, selected_exercise2, type_df2, xyz):
-    path = f"C://Users//loren//OneDrive\Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject]}//{dx[selected_exercise]}//{dx[selected_unit]}//template_session.txt"
+    path = f"fisioterapia_dataset_regresion//{dx[selected_subject]}//{dx[selected_exercise]}//{dx[selected_unit]}//template_session.txt"
     data_df = pd.read_csv(path, delimiter=';')  
+    print(data_df)
     filtered_df = data_df
     data_df = data_df.reset_index(drop=True)
     len_X = [n for n in range(len(data_df['time index']))]
@@ -263,7 +264,7 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
     lags=30;alpha=0.01
     fig_4=make_subplots(rows=5, cols=1, subplot_titles=[f'Autocorrelación Parcial - Unidad {i+1} {type_df2}_{xyz}' for i in range(5)], vertical_spacing=0.1)
     for unit in range(1, 6):
-        temp_path=f"C://Users//loren//OneDrive/Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt"
+        temp_path=f"fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt"
         actual=pd.read_csv(temp_path, delimiter=';')
         hour_data=actual[f'{type_df2}_{xyz}'].diff().dropna()
         pacf_values=pacf(hour_data, nlags=lags, alpha=alpha)
