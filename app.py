@@ -278,4 +278,4 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
 
     fig_4.update_layout(height=800, width=1200, title_text='Autocorrelación Parcial (PACF) por tipo de examen y columna', showlegend=False)    
     return table_0, fig_0, fig_1, fig_2, boxes, fig_3, fig_4
-app.run_server(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8050)))
+app.run_server()
