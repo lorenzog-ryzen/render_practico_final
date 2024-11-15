@@ -1,5 +1,6 @@
 import pandas as pd
 import seaborn as sns
+import os
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_percentage_error
 from sklearn.model_selection import train_test_split
@@ -314,5 +315,4 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
     return table_0, fig_0, fig_1, fig_2, boxes, fig_3, fig_4
 if __name__ == "__main__":
     # Utiliza la variable de entorno PORT asignada por Render
-    port = int(os.environ.get("PORT", 8050))
-    app.run_server(debug=False, host="0.0.0.0", port=port)
+    app.run_server(debug=True)
