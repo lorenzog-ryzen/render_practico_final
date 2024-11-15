@@ -64,10 +64,13 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import numpy as np
 
-# Crear la aplicación Dash
-app = dash.Dash(__name__)
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+import pandas as pd
+import numpy as np
 
-# Datos de ejemplo
+app = dash.Dash(__name__)
 dates = pd.date_range(start="2023-01-01", periods=100, freq="D")
 values = np.random.randn(100).cumsum()
 subjects = np.random.choice(['Sujeto 1', 'Sujeto 2', 'Sujeto 3','Sujeto 4','Sujeto 5'], size=100)  # Sujetos aleatorios
@@ -119,6 +122,11 @@ app.layout = html.Div([
     ),
     
     dcc.Graph(id="table_0"),
+    html.P("""
+    La tabla resume las estadísticas descriptivas de las mediciones para el Sujeto 3 en el Ejercicio 1, Unidad 1. 
+    Las variables de aceleración (`acc_x`, `acc_y`, `acc_z`) oscilan entre aproximadamente -10 y 1.5, mientras que las magnitudes (`mag_x`, `mag_y`, `mag_z`) permanecen en valores positivos, con un rango de 0.1 a 0.7. 
+    Estos datos reflejan la variabilidad de las mediciones en el tiempo.
+    """),
     html.H2("Series Temporales"),
     html.H3("Seleccione entre Accelerometer, Gyroscope o Magnetometer."),
     dcc.Dropdown(
@@ -135,11 +143,30 @@ app.layout = html.Div([
     dcc.Graph(id="fig_1"),
     dcc.Graph(id="fig_2"),
     dcc.Graph(id="fig_3"),
+    html.P("""
+    Las series temporales muestran los datos registrados por el giroscopio en las tres dimensiones (`x`, `y`, `z`):
+
+    Los valores oscilan entre aproximadamente -valores negativos y positivos, con fluctuaciones constantes y una alta densidad de picos distribuidos de manera uniforme.
+    """),
     html.H2("Graficos de Cajas"),
     dcc.Graph(id="fig_4"),
+    html.P("""
+    El gráfico muestra la distribución de los valores registrados por el acelerómetro en tres dimensiones:
+
+    1. En la primera dimensión tenemos la x, los valores están centrados alrededor en posiciones negativas, con algunos valores atípicos hacia el extremo superior.
+    2. En la segunda dimensión tenemos la y,con una distribución más alargada hacia valores negativos y varios valores atípicos hacia el extremo positivo.
+    3. En la tercera dimensión tenemos la z, los valores son predominantemente positivos, con una mediana apreciada y algunos valores atípicos .
+
+    Este análisis resalta diferencias clave en las distribuciones y la presencia de valores atípicos en cada dimensión.
+    """),
     html.H2("Descomposición estacional aditiva"),
     html.Br(),html.Br(),html.Br(),html.Br(),
     dcc.Graph(id="fig_5"),
+    html.P("""
+           El gráfico presenta una descomposición aditiva de una serie temporal, separando sus componentes principales: la serie observada, la tendencia, la estacionalidad y los residuos. 
+           Esta visualización permite identificar patrones subyacentes como fluctuaciones regulares (estacionalidad), 
+           cambios a largo plazo (tendencia) y variaciones no explicadas por los componentes principales (residuos). Es útil para analizar cómo se combinan estos elementos para formar la serie observada
+           """),
     html.H2("Seleccione las variables para la Autocorrelacion parcial."),
     dcc.RadioItems(
         id="subject-radio2",
@@ -176,7 +203,14 @@ app.layout = html.Div([
         clearable=False
     ),    
     html.Br(),html.Br(),html.Br(),html.Br(),
-    dcc.Graph(id="fig_6")
+    dcc.Graph(id="fig_6"),
+    html.P("""
+           Las gráficas muestran la autocorrelación parcial (PACF) para distintas unidades de datos.
+           En general, se observa que en los primeros retrasos (lags), algunas barras superan las bandas de significancia, l
+           o que indica que existe una correlación significativa en esos retrasos. A medida que aumentan los retrasos, las correlaciones se acercan a cero y permanecen dentro de las bandas, 
+           sugiriendo que la influencia de los valores anteriores disminuye con el tiempo. Esto es típico de series temporales con dependencias a corto plazo. La presencia de valores significativos
+           iniciales podría ser relevante para ajustar modelos autoregresivos (AR) en estas series.  
+           """)
     
 ])
 
@@ -198,9 +232,8 @@ app.layout = html.Div([
      Input('x-y-z', "value")])
 
 def update_chart(selected_subject, selected_exercise, selected_unit, type_df, selected_subject2, selected_exercise2, type_df2, xyz):
-    path = f"fisioterapia_dataset_regresion//{dx[selected_subject]}//{dx[selected_exercise]}//{dx[selected_unit]}//template_session.txt"
+    path = f"C://Users//loren//OneDrive\Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject]}//{dx[selected_exercise]}//{dx[selected_unit]}//template_session.txt"
     data_df = pd.read_csv(path, delimiter=';')  
-    print(data_df)
     filtered_df = data_df
     data_df = data_df.reset_index(drop=True)
     len_X = [n for n in range(len(data_df['time index']))]
@@ -264,7 +297,7 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
     lags=30;alpha=0.01
     fig_4=make_subplots(rows=5, cols=1, subplot_titles=[f'Autocorrelación Parcial - Unidad {i+1} {type_df2}_{xyz}' for i in range(5)], vertical_spacing=0.1)
     for unit in range(1, 6):
-        temp_path=f"fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt"
+        temp_path=f"C://Users//loren//OneDrive/Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt"
         actual=pd.read_csv(temp_path, delimiter=';')
         hour_data=actual[f'{type_df2}_{xyz}'].diff().dropna()
         pacf_values=pacf(hour_data, nlags=lags, alpha=alpha)
@@ -279,4 +312,7 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
 
     fig_4.update_layout(height=800, width=1200, title_text='Autocorrelación Parcial (PACF) por tipo de examen y columna', showlegend=False)    
     return table_0, fig_0, fig_1, fig_2, boxes, fig_3, fig_4
-app.run_server()
+if __name__ == "__main__":
+    # Utiliza la variable de entorno PORT asignada por Render
+    port = int(os.environ.get("PORT", 8050))
+    app.run_server(debug=False, host="0.0.0.0", port=port)
