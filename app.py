@@ -233,7 +233,7 @@ app.layout = html.Div([
      Input('x-y-z', "value")])
 
 def update_chart(selected_subject, selected_exercise, selected_unit, type_df, selected_subject2, selected_exercise2, type_df2, xyz):
-    path = f"C://Users//loren//OneDrive\Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject]}//{dx[selected_exercise]}//{dx[selected_unit]}//template_session.txt"
+    path = f"fisioterapia_dataset_regresion/{dx[selected_subject]}/{dx[selected_exercise]}/{dx[selected_unit]}/template_session.txt"
     data_df = pd.read_csv(path, delimiter=';')  
     filtered_df = data_df
     data_df = data_df.reset_index(drop=True)
@@ -298,7 +298,7 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
     lags=30;alpha=0.01
     fig_4=make_subplots(rows=5, cols=1, subplot_titles=[f'Autocorrelación Parcial - Unidad {i+1} {type_df2}_{xyz}' for i in range(5)], vertical_spacing=0.1)
     for unit in range(1, 6):
-        temp_path=f"C://Users//loren//OneDrive/Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt"
+        temp_path=f"fisioterapia_dataset_regresion/{dx[selected_subject2]}/{dx[selected_exercise2]}/u{unit}/template_session.txt"
         actual=pd.read_csv(temp_path, delimiter=';')
         hour_data=actual[f'{type_df2}_{xyz}'].diff().dropna()
         pacf_values=pacf(hour_data, nlags=lags, alpha=alpha)
@@ -315,6 +315,5 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
     return table_0, fig_0, fig_1, fig_2, boxes, fig_3, fig_4
 server = app.server
 if __name__ == "__main__":
-    # Utiliza la variable PORT asignada por Render o usa 8050 por defecto
     port = int(os.environ.get("PORT", 8050))
     app.run_server(debug=False, host="0.0.0.0", port=port)
