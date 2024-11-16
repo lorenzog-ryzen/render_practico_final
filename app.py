@@ -65,13 +65,10 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import numpy as np
 
-import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output
-import pandas as pd
-import numpy as np
+from dash import html, dcc
+import dash_bootstrap_components as dbc
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY]) 
 dates = pd.date_range(start="2023-01-01", periods=100, freq="D")
 values = np.random.randn(100).cumsum()
 subjects = np.random.choice(['Sujeto 1', 'Sujeto 2', 'Sujeto 3','Sujeto 4','Sujeto 5'], size=100)  # Sujetos aleatorios
@@ -100,118 +97,371 @@ dx = {
             'gyr':'Gyroscope',
             'mag':'Magnetometer'
 }
-app.layout = html.Div([
-    
-    html.H2("Seleccione un Sujeto, Ejercicio y Unidad."),
-    dcc.RadioItems(
-        id="subject-radio",
-        options=[{'label': s, 'value': s} for s in df["Sujeto"].unique()],
-        value='Sujeto 1',  # Valor inicial
-        labelStyle={'display': 'inline-block', 'padding': '10px'}
+app.layout = dbc.Container(
+    [
+    # Título
+    dbc.Row(
+        dbc.Col(
+            html.H2(
+                "Seleccione un Sujeto, Ejercicio y Unidad",
+                className="text-center text-light mt-4 mb-4"  # Cambiado a `text-light` para fondo oscuro
+            )
+        )
     ),
-    dcc.RadioItems(
-        id="exercise-radio",
-        options=[{'label': e, 'value': e} for e in df["Ejercicio"].unique()],
-        value='Ejercicio 1',  # Valor inicial
-        labelStyle={'display': 'inline-block', 'padding': '10px'}
+    # Opciones de selección
+    dbc.Row(
+        [
+            dbc.Col(
+                [
+                    html.Label("Sujeto", className="fw-bold text-light"),  # Cambiado a `text-light`
+                    dcc.RadioItems(
+                        id="subject-radio",
+                        options=[
+                            {'label': f"🔹 {s}", 'value': s} for s in ["Sujeto 1", "Sujeto 2", "Sujeto 3", "Sujeto 4", "Sujeto 5"]
+                        ],
+                        value="Sujeto 1",  # Valor inicial
+                        labelStyle={
+                            'display': 'block',
+                            'padding': '10px',
+                            'border': '1px solid #ddd',
+                            'border-radius': '5px',
+                            'margin-bottom': '5px',
+                            'background-color': '#212529',  # Fondo oscuro
+                            'color': '#f8f9fa',  # Texto claro
+                            'cursor': 'pointer',
+                            'font-size': '16px'
+                        },
+                        inputStyle={"margin-right": "10px"}
+                    ),
+                ],
+                width=4
+            ),
+            dbc.Col(
+                [
+                    html.Label("Ejercicio", className="fw-bold text-light"),  # Cambiado a `text-light`
+                    dcc.RadioItems(
+                        id="exercise-radio",
+                        options=[
+                            {'label': f"⚡ {e}", 'value': e} for e in [
+                                "Ejercicio 1", "Ejercicio 2", "Ejercicio 3", "Ejercicio 4",
+                                "Ejercicio 5", "Ejercicio 6", "Ejercicio 7", "Ejercicio 8"
+                            ]
+                        ],
+                        value="Ejercicio 1",  # Valor inicial
+                        labelStyle={
+                            'display': 'block',
+                            'padding': '10px',
+                            'border': '1px solid #ddd',
+                            'border-radius': '5px',
+                            'margin-bottom': '5px',
+                            'background-color': '#212529',  # Fondo oscuro
+                            'color': '#f8f9fa',  # Texto claro
+                            'cursor': 'pointer',
+                            'font-size': '16px'
+                        },
+                        inputStyle={"margin-right": "10px"}
+                    ),
+                ],
+                width=4
+            ),
+            dbc.Col(
+                [
+                    html.Label("Unidad", className="fw-bold text-light"),  # Cambiado a `text-light`
+                    dcc.RadioItems(
+                        id="unit-radio",
+                        options=[
+                            {'label': f"📦 {u}", 'value': u} for u in [
+                                "Unidad 1", "Unidad 2", "Unidad 3", "Unidad 4", "Unidad 5"
+                            ]
+                        ],
+                        value="Unidad 1",  # Valor inicial
+                        labelStyle={
+                            'display': 'block',
+                            'padding': '10px',
+                            'border': '1px solid #ddd',
+                            'border-radius': '5px',
+                            'margin-bottom': '5px',
+                            'background-color': '#212529',  # Fondo oscuro
+                            'color': '#f8f9fa',  # Texto claro
+                            'cursor': 'pointer',
+                            'font-size': '16px'
+                        },
+                        inputStyle={"margin-right": "10px"}
+                    ),
+                ],
+                width=4
+            ),
+        ]
     ),
-    dcc.RadioItems(
-        id="unit-radio",
-        options=[{'label': u, 'value': u} for u in df["Unidad"].unique()],
-        value='Unidad 1',  # Valor inicial
-        labelStyle={'display': 'inline-block', 'padding': '10px'}
+    # Gráfica
+    dbc.Row(
+        dbc.Col(
+            dcc.Graph(id="table_0"),
+            width=12
+        )
     ),
-    
-    dcc.Graph(id="table_0"),
-    html.P("""
-    La tabla resume las estadísticas descriptivas de las mediciones para el Sujeto 3 en el Ejercicio 1, Unidad 1. 
-    Las variables de aceleración (`acc_x`, `acc_y`, `acc_z`) oscilan entre aproximadamente -10 y 1.5, mientras que las magnitudes (`mag_x`, `mag_y`, `mag_z`) permanecen en valores positivos, con un rango de 0.1 a 0.7. 
-    Estos datos reflejan la variabilidad de las mediciones en el tiempo.
-    """),
-    html.H2("Series Temporales"),
-    html.H3("Seleccione entre Accelerometer, Gyroscope o Magnetometer."),
-    dcc.Dropdown(
-        id='ac-gr-mg',
-        options=[
-            {'label': 'Accelerometer', 'value': 'acc'},
-            {'label': 'Gyroscope', 'value': 'gyr'},
-            {'label': 'Magnetometer', 'value': 'mag'}
-        ],
-        value='acc',  
-        clearable=False
+       # Descripción
+dbc.Row(
+    dbc.Col(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4("Descripción", className="card-title text-primary"),
+                    html.P(
+                        """
+                        La tabla resume las estadísticas descriptivas de las mediciones para el Sujeto 3 en el Ejercicio 1, Unidad 1. 
+                        Las variables de aceleración (`acc_x`, `acc_y`, `acc_z`) oscilan entre aproximadamente -10 y 1.5, mientras que las magnitudes (`mag_x`, `mag_y`, `mag_z`) permanecen en valores positivos, con un rango de 0.1 a 0.7. 
+                        Estos datos reflejan la variabilidad de las mediciones en el tiempo.
+                        """,
+                        className="text-muted"
+                    )
+                ]
+            ),
+            className="mt-3 shadow-sm"
+        ),
+        width=12
+    )
+),
+    # Título de la sección
+    dbc.Row(
+        dbc.Col(
+            html.H2(
+                "Series Temporales",
+                className="text-light text-center mt-4 mb-3"
+            )
+        )
     ),
-    html.Br(),html.Br(),html.Br(),
-    dcc.Graph(id="fig_1"),
-    dcc.Graph(id="fig_2"),
-    dcc.Graph(id="fig_3"),
-    html.P("""
-    Las series temporales muestran los datos registrados por el giroscopio en las tres dimensiones (`x`, `y`, `z`):
+    # Subtítulo
+    dbc.Row(
+        dbc.Col(
+            html.H3(
+                "Seleccione entre Accelerometer, Gyroscope o Magnetometer.",
+                className="text-light text-center mb-4"
+            )
+        )
+    ),
+# Dropdown estilizado con Dash
+dbc.Row(
+    dbc.Col(
+        dcc.Dropdown(
+            id='ac-gr-mg',
+            options=[
+                {'label': 'Accelerometer', 'value': 'acc'},
+                {'label': 'Gyroscope', 'value': 'gyr'},
+                {'label': 'Magnetometer', 'value': 'mag'}
+            ],
+            value='acc',  # Valor inicial
+            clearable=False,
+            style={
+                'backgroundColor': '#FFFFFF',  # Fondo gris oscuro del dropdown
+                'color': '#FF0000',  # Texto blanco en el campo seleccionado
+                'border': '1px solid #6c757d',  # Borde gris claro
+                'borderRadius': '5px',  # Bordes redondeados
+                'fontSize': '16px',  # Tamaño de fuente
+                'padding': '10px'  # Espaciado interno
+            },
+        ),
+        width=6,  # Ajusta el ancho
+        className="mx-auto"  # Centra el dropdown
+    )
+),
+html.Br(), html.Br(), html.Br(),
+dcc.Graph(id="fig_1"),
+dcc.Graph(id="fig_2"),
+dcc.Graph(id="fig_3"),
+dbc.Row(
+    dbc.Col(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4("Descripción", className="card-title text-primary"),
+                    html.P(
+                        """
+                        Las series temporales muestran los datos registrados por el giroscopio en las tres dimensiones (`x`, `y`, `z`):
 
-    Los valores oscilan entre aproximadamente -valores negativos y positivos, con fluctuaciones constantes y una alta densidad de picos distribuidos de manera uniforme.
-    """),
-    html.H2("Graficos de Cajas"),
-    dcc.Graph(id="fig_4"),
-    html.P("""
-    El gráfico muestra la distribución de los valores registrados por el acelerómetro en tres dimensiones:
+                        Los valores oscilan entre aproximadamente -valores negativos y positivos, con fluctuaciones constantes y una alta densidad de picos distribuidos de manera uniforme.
+                        """,
+                        className="text-muted"
+                    )
+                ]
+            ),
+            className="mt-3 shadow-sm"  # Margen superior y ligera sombra
+        ),
+        width=12  # Ancho completo de la columna
+    )
+),
+html.H2("Gráficos de Cajas", className="text-light text-center mt-4"),
+dcc.Graph(id="fig_4"),
+dbc.Row(
+    dbc.Col(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4("Descripción", className="card-title text-primary"),
+                    html.P(
+                        """
+                        El gráfico muestra la distribución de los valores registrados por el acelerómetro en tres dimensiones:
 
-    1. En la primera dimensión tenemos la x, los valores están centrados alrededor en posiciones negativas, con algunos valores atípicos hacia el extremo superior.
-    2. En la segunda dimensión tenemos la y,con una distribución más alargada hacia valores negativos y varios valores atípicos hacia el extremo positivo.
-    3. En la tercera dimensión tenemos la z, los valores son predominantemente positivos, con una mediana apreciada y algunos valores atípicos .
+                        1. En la primera dimensión tenemos la x, los valores están centrados alrededor de posiciones negativas, con algunos valores atípicos hacia el extremo superior.
+                        2. En la segunda dimensión tenemos la y, con una distribución más alargada hacia valores negativos y varios valores atípicos hacia el extremo positivo.
+                        3. En la tercera dimensión tenemos la z, los valores son predominantemente positivos, con una mediana apreciada y algunos valores atípicos.
 
-    Este análisis resalta diferencias clave en las distribuciones y la presencia de valores atípicos en cada dimensión.
-    """),
-    html.H2("Descomposición estacional aditiva"),
-    html.Br(),html.Br(),html.Br(),html.Br(),
-    dcc.Graph(id="fig_5"),
-    html.P("""
-           El gráfico presenta una descomposición aditiva de una serie temporal, separando sus componentes principales: la serie observada, la tendencia, la estacionalidad y los residuos. 
-           Esta visualización permite identificar patrones subyacentes como fluctuaciones regulares (estacionalidad), 
-           cambios a largo plazo (tendencia) y variaciones no explicadas por los componentes principales (residuos). Es útil para analizar cómo se combinan estos elementos para formar la serie observada
-           """),
-    html.H2("Seleccione las variables para la Autocorrelacion parcial."),
-    dcc.RadioItems(
-        id="subject-radio2",
-        options=[{'label': s, 'value': s} for s in df["Sujeto"].unique()],
-        value='Sujeto 1',  # Valor inicial
-        labelStyle={'display': 'inline-block', 'padding': '10px'}
-    ),
-    dcc.RadioItems(
-        id="exercise-radio2",
-        options=[{'label': e, 'value': e} for e in df["Ejercicio"].unique()],
-        value='Ejercicio 1',  # Valor inicial
-        labelStyle={'display': 'inline-block', 'padding': '10px'}
-    ),
-    html.H3("Seleccione el tipo de examen."),
-    dcc.Dropdown(
-        id='ac-gr-mg2',
-        options=[
-            {'label': 'Accelerometer', 'value': 'acc'},
-            {'label': 'Gyroscope', 'value': 'gyr'},
-            {'label': 'Magnetometer', 'value': 'mag'}
-        ],
-        value='acc',  
-        clearable=False
-    ),
-    html.H3("Seleccione la columna x,y,z."),
-    dcc.Dropdown(
-        id='x-y-z',
-        options=[
-            {'label': 'x', 'value': 'x'},
-            {'label': 'y', 'value': 'y'},
-            {'label': 'z', 'value': 'z'}
-        ],
-        value='x',  
-        clearable=False
-    ),    
-    html.Br(),html.Br(),html.Br(),html.Br(),
-    dcc.Graph(id="fig_6"),
-    html.P("""
-           Las gráficas muestran la autocorrelación parcial (PACF) para distintas unidades de datos.
-           En general, se observa que en los primeros retrasos (lags), algunas barras superan las bandas de significancia, l
-           o que indica que existe una correlación significativa en esos retrasos. A medida que aumentan los retrasos, las correlaciones se acercan a cero y permanecen dentro de las bandas, 
-           sugiriendo que la influencia de los valores anteriores disminuye con el tiempo. Esto es típico de series temporales con dependencias a corto plazo. La presencia de valores significativos
-           iniciales podría ser relevante para ajustar modelos autoregresivos (AR) en estas series.  
-           """)
+                        Este análisis resalta diferencias clave en las distribuciones y la presencia de valores atípicos en cada dimensión.
+                        """,
+                        className="text-muted"
+                    )
+                ]
+            ),
+            className="mt-3 shadow-sm"
+        ),
+        width=12
+    )
+),
+
+html.H2("Descomposición estacional aditiva", className="text-light text-center mt-4"),
+html.Br(), html.Br(), html.Br(), html.Br(),
+dcc.Graph(id="fig_5"),
+dbc.Row(
+    dbc.Col(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4("Descripción", className="card-title text-primary"),
+                    html.P(
+                        """
+                        El gráfico presenta una descomposición aditiva de una serie temporal, separando sus componentes principales: la serie observada, la tendencia, la estacionalidad y los residuos. 
+                        Esta visualización permite identificar patrones subyacentes como fluctuaciones regulares (estacionalidad), 
+                        cambios a largo plazo (tendencia) y variaciones no explicadas por los componentes principales (residuos). 
+                        Es útil para analizar cómo se combinan estos elementos para formar la serie observada.
+                        """,
+                        className="text-muted"
+                    )
+                ]
+            ),
+            className="mt-3 shadow-sm"
+        ),
+        width=12
+    )
+),
+
+# Sección: Selección de variables para Autocorrelación Parcial
+dbc.Row(
+    dbc.Col(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    # Título Principal
+                    html.H2(
+                        "Seleccione las variables para la Autocorrelación Parcial",
+                        className="text-primary text-center mb-4"
+                    ),
+                    # Selección de Sujeto
+                    html.Label("Seleccione un Sujeto", className="text-light fw-bold"),
+                    dcc.RadioItems(
+                        id="subject-radio2",
+                        options=[{'label': s, 'value': s} for s in df["Sujeto"].unique()],
+                        value='Sujeto 1',
+                        labelStyle={
+                            'display': 'block',
+                            'padding': '10px',
+                            'cursor': 'pointer',
+                            'border-radius': '5px',
+                            'background-color': '#343a40',  # Fondo oscuro
+                            'color': '#FFFFFF'  # Texto blanco
+                        },
+                        inputStyle={"margin-right": "10px"}
+                    ),
+                    html.Br(),
+                    # Selección de Ejercicio
+                    html.Label("Seleccione un Ejercicio", className="text-light fw-bold"),
+                    dcc.RadioItems(
+                        id="exercise-radio2",
+                        options=[{'label': e, 'value': e} for e in df["Ejercicio"].unique()],
+                        value='Ejercicio 1',
+                        labelStyle={
+                            'display': 'block',
+                            'padding': '10px',
+                            'cursor': 'pointer',
+                            'border-radius': '5px',
+                            'background-color': '#343a40',  # Fondo oscuro
+                            'color': '#FFFFFF'  # Texto blanco
+                        },
+                        inputStyle={"margin-right": "10px"}
+                    ),
+                    html.Br(),
+                    # Selección de Tipo de Examen
+                    html.Label("Seleccione el Tipo de Examen", className="text-light fw-bold"),
+                    dcc.Dropdown(
+                        id='ac-gr-mg2',
+                        options=[
+                            {'label': 'Accelerometer', 'value': 'acc'},
+                            {'label': 'Gyroscope', 'value': 'gyr'},
+                            {'label': 'Magnetometer', 'value': 'mag'}
+                        ],
+                        value='acc',
+                        clearable=False,
+                        style={
+                            'backgroundColor': '#FFFFFF',  # Fondo gris oscuro del dropdown
+                            'color': '#FF0000',  # Texto blanco
+                            'border-radius': '5px',
+                            'border': '1px solid #6c757d',  # Borde gris claro
+                            'padding': '10px'
+                        }
+                    ),
+                    html.Br(),
+                    # Selección de Columna
+                    html.Label("Seleccione la Columna (x, y, z)", className="text-light fw-bold"),
+                    dcc.Dropdown(
+                        id='x-y-z',
+                        options=[
+                            {'label': 'x', 'value': 'x'},
+                            {'label': 'y', 'value': 'y'},
+                            {'label': 'z', 'value': 'z'}
+                        ],
+                        value='x',
+                        clearable=False,
+                        style={
+                            'backgroundColor': '#FFFFFF',  # Fondo gris oscuro del dropdown
+                            'color': '#008000',  # Texto blanco
+                            'border-radius': '5px',
+                            'border': '1px solid #6c757d',  # Borde gris claro
+                            'padding': '10px'
+                        }
+                    )
+                ]
+            ),
+            className="mt-4 shadow-sm"
+        ),
+        width=12
+    )
+),
+html.Br(), html.Br(), html.Br(), html.Br(),
+dcc.Graph(id="fig_6"),
+dbc.Row(
+    dbc.Col(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H4("Descripción", className="card-title text-primary"),
+                    html.P(
+                        """
+                        Las gráficas muestran la autocorrelación parcial (PACF) para distintas unidades de datos.
+                        En general, se observa que en los primeros retrasos (lags), algunas barras superan las bandas de significancia, 
+                        lo que indica que existe una correlación significativa en esos retrasos. A medida que aumentan los retrasos, 
+                        las correlaciones se acercan a cero y permanecen dentro de las bandas, sugiriendo que la influencia de los valores anteriores disminuye con el tiempo.
+                        
+                        Esto es típico de series temporales con dependencias a corto plazo. La presencia de valores significativos iniciales podría ser relevante para ajustar 
+                        modelos autoregresivos (AR) en estas series.
+                        """,
+                        className="text-muted"
+                    )
+                ]
+            ),
+            className="mt-3 shadow-sm"
+        ),
+        width=12
+    )
+)
     
 ])
 
