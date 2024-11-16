@@ -287,7 +287,7 @@ def update_chart(selected_subject, selected_exercise, selected_unit, type_df, se
     add_decomposition(result_add, row=1)
     fig_3.update_layout(title_text=f'Descomposición estacional de {type_df}_x (Aditiva)', height=800, width=1200, showlegend=True)
     '''    for unit in range(1,5):
-        temp_path = f"C://Users//loren//OneDrive\Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt" 
+        temp_path = rf"C://Users//loren//OneDrive\Escritorio//fisioterapia_dataset_regresion//{dx[selected_subject2]}//{dx[selected_exercise2]}//u{unit}//template_session.txt" 
         actual = pd.read_csv(temp_path, delimiter=';')
         hour_data = actual[f'{type_df}_{xyz}'].diff().dropna()
         plot_pacf(hour_data, lags=30, alpha=0.01)
